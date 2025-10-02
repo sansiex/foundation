@@ -1,0 +1,128 @@
+spring:
+  application:
+    name: ai-chat-foundation
+  
+  # Database Configuration
+  datasource:
+    url: jdbc:h2:mem:chatdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: 
+  
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        format_sql: true
+  
+  # File Upload Configuration
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+  
+  # Web Configuration
+  web:
+    resources:
+      static-locations: classpath:/static/
+
+# OLLAMA Configuration
+ollama:
+  base-url: http://localhost:11434
+  model: qwen2.5vl:32b
+  timeout: 30000
+  max-retries: 3
+
+# File Storage Configuration
+file:
+  upload-dir: ./uploads
+  max-size: 10485760  # 10MB in bytes
+  allowed-types: image/jpeg,image/png,image/gif,image/webp
+
+# Server Configuration
+server:
+  port: 8080
+  servlet:
+    context-path: /
+
+# Logging Configuration
+logging:
+  level:
+    com.aichat.foundation: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.web: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+---
+# Production Profile
+spring:
+  config:
+    activate:
+      on-profile: prod
+  
+  datasource:
+    url: jdbc:postgresql://localhost:5432/aichat
+    username: ${DB_USERNAME:aichat}
+    password: ${DB_PASSWORD:password}
+    driver-class-name: org.postgresql.Driver
+  
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+# OLLAMA Configuration for Production
+ollama:
+  base-url: ${OLLAMA_URL:http://localhost:11434}
+  model: ${OLLAMA_MODEL:qwen2.5vl:32b}
+
+# File Storage for Production
+file:
+  upload-dir: ${FILE_UPLOAD_DIR:/app/uploads}
+
+# Logging for Production
+logging:
+  level:
+    com.aichat.foundation: INFO
+    org.springframework.security: WARN
+  file:
+    name: /app/logs/ai-chat.log
+
+---
+# Test Profile
+spring:
+  config:
+    activate:
+      on-profile: test
+  
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: 
+  
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+
+# OLLAMA Mock Configuration for Testing
+ollama:
+  base-url: http://mock-ollama:11434
+  model: mock-model
+
+# File Storage for Testing
+file:
+  upload-dir: ./test-uploads

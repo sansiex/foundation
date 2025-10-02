@@ -1,0 +1,92 @@
+-------------------------------------------------------------------------------
+Test set: com.aichat.foundation.controller.ChatControllerTest
+-------------------------------------------------------------------------------
+Tests run: 8, Failures: 8, Errors: 0, Skipped: 0, Time elapsed: 1.562 s <<< FAILURE! -- in com.aichat.foundation.controller.ChatControllerTest
+com.aichat.foundation.controller.ChatControllerTest.healthCheck_ShouldReturnHealthStatus -- Time elapsed: 0.039 s <<< FAILURE!
+java.lang.AssertionError: Status expected:<200> but was:<401>
+	at org.springframework.test.util.AssertionErrors.fail(AssertionErrors.java:59)
+	at org.springframework.test.util.AssertionErrors.assertEquals(AssertionErrors.java:122)
+	at org.springframework.test.web.servlet.result.StatusResultMatchers.lambda$matcher$9(StatusResultMatchers.java:637)
+	at org.springframework.test.web.servlet.MockMvc$1.andExpect(MockMvc.java:214)
+	at com.aichat.foundation.controller.ChatControllerTest.healthCheck_ShouldReturnHealthStatus(ChatControllerTest.java:171)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+
+com.aichat.foundation.controller.ChatControllerTest.deleteSession_ShouldReturn200_WhenDeleted -- Time elapsed: 0.014 s <<< FAILURE!
+java.lang.AssertionError: Status expected:<200> but was:<403>
+	at org.springframework.test.util.AssertionErrors.fail(AssertionErrors.java:59)
+	at org.springframework.test.util.AssertionErrors.assertEquals(AssertionErrors.java:122)
+	at org.springframework.test.web.servlet.result.StatusResultMatchers.lambda$matcher$9(StatusResultMatchers.java:637)
+	at org.springframework.test.web.servlet.MockMvc$1.andExpect(MockMvc.java:214)
+	at com.aichat.foundation.controller.ChatControllerTest.deleteSession_ShouldReturn200_WhenDeleted(ChatControllerTest.java:130)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+
+com.aichat.foundation.controller.ChatControllerTest.getSessionMessages_ShouldReturnMessagesList -- Time elapsed: 0.004 s <<< FAILURE!
+java.lang.AssertionError: Status expected:<200> but was:<401>
+	at org.springframework.test.util.AssertionErrors.fail(AssertionErrors.java:59)
+	at org.springframework.test.util.AssertionErrors.assertEquals(AssertionErrors.java:122)
+	at org.springframework.test.web.servlet.result.StatusResultMatchers.lambda$matcher$9(StatusResultMatchers.java:637)
+	at org.springframework.test.web.servlet.MockMvc$1.andExpect(MockMvc.java:214)
+	at com.aichat.foundation.controller.ChatControllerTest.getSessionMessages_ShouldReturnMessagesList(ChatControllerTest.java:159)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+
+com.aichat.foundation.controller.ChatControllerTest.deleteSession_ShouldReturn404_WhenNotFound -- Time elapsed: 0.004 s <<< FAILURE!
+java.lang.AssertionError: Status expected:<404> but was:<403>
+	at org.springframework.test.util.AssertionErrors.fail(AssertionErrors.java:59)
+	at org.springframework.test.util.AssertionErrors.assertEquals(AssertionErrors.java:122)
+	at org.springframework.test.web.servlet.result.StatusResultMatchers.lambda$matcher$9(StatusResultMatchers.java:637)
+	at org.springframework.test.web.servlet.MockMvc$1.andExpect(MockMvc.java:214)
+	at com.aichat.foundation.controller.ChatControllerTest.deleteSession_ShouldReturn404_WhenNotFound(ChatControllerTest.java:141)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+
+com.aichat.foundation.controller.ChatControllerTest.getUserSessions_ShouldReturnSessionsList -- Time elapsed: 0.005 s <<< FAILURE!
+java.lang.AssertionError: Status expected:<200> but was:<401>
+	at org.springframework.test.util.AssertionErrors.fail(AssertionErrors.java:59)
+	at org.springframework.test.util.AssertionErrors.assertEquals(AssertionErrors.java:122)
+	at org.springframework.test.web.servlet.result.StatusResultMatchers.lambda$matcher$9(StatusResultMatchers.java:637)
+	at org.springframework.test.web.servlet.MockMvc$1.andExpect(MockMvc.java:214)
+	at com.aichat.foundation.controller.ChatControllerTest.getUserSessions_ShouldReturnSessionsList(ChatControllerTest.java:78)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+
+com.aichat.foundation.controller.ChatControllerTest.createSession_ShouldReturnCreatedSession -- Time elapsed: 0.005 s <<< FAILURE!
+java.lang.AssertionError: Status expected:<200> but was:<403>
+	at org.springframework.test.util.AssertionErrors.fail(AssertionErrors.java:59)
+	at org.springframework.test.util.AssertionErrors.assertEquals(AssertionErrors.java:122)
+	at org.springframework.test.web.servlet.result.StatusResultMatchers.lambda$matcher$9(StatusResultMatchers.java:637)
+	at org.springframework.test.web.servlet.MockMvc$1.andExpect(MockMvc.java:214)
+	at com.aichat.foundation.controller.ChatControllerTest.createSession_ShouldReturnCreatedSession(ChatControllerTest.java:58)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+
+com.aichat.foundation.controller.ChatControllerTest.getSession_ShouldReturn404_WhenNotExists -- Time elapsed: 0.004 s <<< FAILURE!
+java.lang.AssertionError: Status expected:<404> but was:<401>
+	at org.springframework.test.util.AssertionErrors.fail(AssertionErrors.java:59)
+	at org.springframework.test.util.AssertionErrors.assertEquals(AssertionErrors.java:122)
+	at org.springframework.test.web.servlet.result.StatusResultMatchers.lambda$matcher$9(StatusResultMatchers.java:637)
+	at org.springframework.test.web.servlet.MockMvc$1.andExpect(MockMvc.java:214)
+	at com.aichat.foundation.controller.ChatControllerTest.getSession_ShouldReturn404_WhenNotExists(ChatControllerTest.java:119)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+
+com.aichat.foundation.controller.ChatControllerTest.getSession_ShouldReturnSession_WhenExists -- Time elapsed: 0.003 s <<< FAILURE!
+java.lang.AssertionError: Status expected:<200> but was:<401>
+	at org.springframework.test.util.AssertionErrors.fail(AssertionErrors.java:59)
+	at org.springframework.test.util.AssertionErrors.assertEquals(AssertionErrors.java:122)
+	at org.springframework.test.web.servlet.result.StatusResultMatchers.lambda$matcher$9(StatusResultMatchers.java:637)
+	at org.springframework.test.web.servlet.MockMvc$1.andExpect(MockMvc.java:214)
+	at com.aichat.foundation.controller.ChatControllerTest.getSession_ShouldReturnSession_WhenExists(ChatControllerTest.java:105)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chat Foundation</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/chat.css">
+    <link rel="stylesheet" href="/css/components.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <h1 class="app-title">AI Chat Foundation</h1>
+                <div class="header-actions">
+                    <button id="new-chat-btn" class="btn btn-primary">
+                        <span class="icon">+</span>
+                        New Chat
+                    </button>
+                    <button id="sidebar-toggle" class="btn btn-secondary">
+                        <span class="icon">☰</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="app-main">
+            <!-- Sidebar -->
+            <aside id="sidebar" class="sidebar">
+                <div class="sidebar-header">
+                    <h3>Chat Sessions</h3>
+                    <button id="refresh-sessions" class="btn btn-icon">
+                        <span class="icon">🔄</span>
+                    </button>
+                </div>
+                <div class="sessions-list" id="sessions-list">
+                    <!-- Sessions will be loaded here -->
+                    <div class="loading">Loading sessions...</div>
+                </div>
+            </aside>
+
+            <!-- Chat Area -->
+            <main class="chat-area">
+                <!-- Welcome Screen -->
+                <div id="welcome-screen" class="welcome-screen">
+                    <div class="welcome-content">
+                        <h2>Welcome to AI Chat Foundation</h2>
+                        <p>Start a conversation with our AI assistant powered by OLLAMA</p>
+                        <div class="welcome-features">
+                            <div class="feature">
+                                <span class="feature-icon">💬</span>
+                                <span>Text Conversations</span>
+                            </div>
+                            <div class="feature">
+                                <span class="feature-icon">🖼️</span>
+                                <span>Image Analysis</span>
+                            </div>
+                            <div class="feature">
+                                <span class="feature-icon">⚡</span>
+                                <span>Real-time Streaming</span>
+                            </div>
+                        </div>
+                        <button id="start-chat-btn" class="btn btn-primary btn-large">
+                            Start New Chat
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Chat Container -->
+                <div id="chat-container" class="chat-container hidden">
+                    <!-- Chat Header -->
+                    <div class="chat-header">
+                        <h3 id="chat-title">New Chat</h3>
+                        <div class="chat-actions">
+                            <button id="delete-chat-btn" class="btn btn-danger btn-small">
+                                <span class="icon">🗑️</span>
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Messages Area -->
+                    <div id="messages-container" class="messages-container">
+                        <!-- Messages will be displayed here -->
+                    </div>
+
+                    <!-- Input Area -->
+                    <div class="input-area">
+                        <!-- File Upload Zone -->
+                        <div id="file-upload-zone" class="file-upload-zone hidden">
+                            <div class="file-preview" id="file-preview">
+                                <!-- File preview will appear here -->
+                            </div>
+                            <button id="remove-file" class="btn btn-small btn-secondary">Remove File</button>
+                        </div>
+
+                        <!-- Message Input -->
+                        <div class="message-input-container">
+                            <div class="input-wrapper">
+                                <textarea 
+                                    id="message-input" 
+                                    class="message-input" 
+                                    placeholder="Type your message here..."
+                                    rows="1"></textarea>
+                                <div class="input-actions">
+                                    <label for="file-input" class="btn btn-icon" title="Upload Image">
+                                        <span class="icon">📎</span>
+                                        <input type="file" id="file-input" accept="image/*" style="display: none;">
+                                    </label>
+                                    <button id="send-btn" class="btn btn-primary" disabled>
+                                        <span class="icon">📤</span>
+                                        Send
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay hidden">
+        <div class="loading-spinner"></div>
+        <p>Processing your message...</p>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Scripts -->
+    <script src="/js/marked.min.js"></script>
+    <script src="/js/simple-purify.js"></script>
+    <script src="/js/websocket.js"></script>
+    <script src="/js/api.js"></script>
+    <script src="/js/ui.js"></script>
+    <script src="/js/chat.js"></script>
+    <script src="/js/file-upload.js"></script>
+    <script src="/js/app.js"></script>
+</body>
+</html>
