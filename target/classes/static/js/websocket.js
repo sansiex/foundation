@@ -13,6 +13,13 @@ class WebSocketManager {
 
     connect() {
         return new Promise((resolve, reject) => {
+            // Check if SockJS and Stomp are available
+            if (typeof SockJS === 'undefined' || typeof Stomp === 'undefined') {
+                console.warn('SockJS or STOMP not available, WebSocket connection skipped');
+                reject(new Error('WebSocket libraries not available'));
+                return;
+            }
+            
             try {
                 // Use SockJS with STOMP
                 this.socket = new SockJS('/ws/chat');
@@ -33,22 +40,26 @@ class WebSocketManager {
                         resolve(frame);
                     },
                     (error) => {
-                        console.error('WebSocket connection error:', error);
+                        console.log('WebSocket connection failed, HTTP streaming will be used:', error);
                         this.connected = false;
-                        this.handleReconnect();
+                        // Don't attempt reconnection on initial connection failure
+                        // Let the application use HTTP streaming instead
                         reject(error);
                     }
                 );
 
                 // Handle socket close
                 this.socket.onclose = (event) => {
-                    console.log('WebSocket closed:', event);
+                    console.log('WebSocket closed, falling back to HTTP streaming');
                     this.connected = false;
-                    this.handleReconnect();
+                    // Only attempt reconnection if we were previously connected
+                    if (this.reconnectAttempts === 0) {
+                        this.handleReconnect();
+                    }
                 };
 
             } catch (error) {
-                console.error('Failed to create WebSocket connection:', error);
+                console.warn('Failed to create WebSocket connection:', error);
                 reject(error);
             }
         });
@@ -130,27 +141,31 @@ class WebSocketManager {
 
     handleReconnect() {
         if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-            console.error('Max reconnection attempts reached');
-            window.app.ui.showToast('Connection lost. Please refresh the page.', 'error');
+            console.log('Max WebSocket reconnection attempts reached, using HTTP streaming fallback');
+            // Don't show error message to user, just fall back to HTTP streaming silently
             return;
         }
 
         this.reconnectAttempts++;
         const delay = this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1);
         
-        console.log(`Attempting to reconnect in ${delay}ms (attempt ${this.reconnectAttempts})`);
+        console.log(`Attempting WebSocket reconnect in ${delay}ms (attempt ${this.reconnectAttempts})`);
         
         setTimeout(() => {
             this.connect()
                 .then(() => {
-                    console.log('Reconnected successfully');
-                    window.app.ui.showToast('Connection restored', 'success');
+                    console.log('WebSocket reconnected successfully');
+                    // Only show success message if it was previously failed
+                    if (this.reconnectAttempts > 1) {
+                        window.app?.ui?.showToast('WebSocket connection restored', 'success');
+                    }
                     
                     // Re-subscribe to active sessions
                     this.resubscribeToActiveSessions();
                 })
                 .catch((error) => {
-                    console.error('Reconnection failed:', error);
+                    console.warn('WebSocket reconnection failed, continuing with HTTP fallback:', error);
+                    // Don't show error to user, HTTP streaming still works
                 });
         }, delay);
     }
@@ -241,29 +256,41 @@ window.sseManager = new SSEManager();
 
 // Attempt WebSocket connection on page load
 document.addEventListener('DOMContentLoaded', () => {
-    // Try WebSocket first, fallback to SSE if needed
-    window.wsManager.connect()
+    // Load WebSocket libraries first, then attempt connection
+    loadWebSocketLibraries()
         .then(() => {
-            console.log('WebSocket connection established');
+            console.log('WebSocket libraries loaded successfully');
+            // Try WebSocket connection (optional enhancement)
+            return window.wsManager.connect();
+        })
+        .then(() => {
+            console.log('WebSocket connection established (optional enhancement)');
         })
         .catch((error) => {
-            console.warn('WebSocket connection failed, will use HTTP streaming:', error);
+            console.log('WebSocket not available, using HTTP streaming (this is normal):', error.message);
+            // This is expected and normal - HTTP streaming will be used instead
         });
 });
 
-// Include SockJS and STOMP libraries
+// Include SockJS and STOMP libraries from local files
 function loadWebSocketLibraries() {
     return new Promise((resolve, reject) => {
         const sockjsScript = document.createElement('script');
-        sockjsScript.src = 'https://cdn.jsdelivr.net/npm/sockjs-client@1.6.1/dist/sockjs.min.js';
+        sockjsScript.src = '/lib/sockjs.min.js';
         sockjsScript.onload = () => {
             const stompScript = document.createElement('script');
-            stompScript.src = 'https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js';
+            stompScript.src = '/lib/stomp.umd.min.js';
             stompScript.onload = () => resolve();
-            stompScript.onerror = reject;
+            stompScript.onerror = (error) => {
+                console.warn('Failed to load STOMP library, WebSocket features will be limited:', error);
+                resolve(); // Continue without STOMP
+            };
             document.head.appendChild(stompScript);
         };
-        sockjsScript.onerror = reject;
+        sockjsScript.onerror = (error) => {
+            console.warn('Failed to load SockJS library, WebSocket features will be limited:', error);
+            resolve(); // Continue without SockJS
+        };
         document.head.appendChild(sockjsScript);
     });
 }
@@ -271,8 +298,8 @@ function loadWebSocketLibraries() {
 // Load libraries when script loads
 loadWebSocketLibraries()
     .then(() => {
-        console.log('WebSocket libraries loaded successfully');
+        console.log('WebSocket libraries loaded, ready for optional connection');
     })
     .catch((error) => {
-        console.error('Failed to load WebSocket libraries:', error);
+        console.log('WebSocket libraries not available, HTTP streaming will be used:', error);
     });

@@ -28,3 +28,4 @@
 /Users/sansi/dev/qoder_projects/foundation/src/main/java/com/aichat/foundation/dto/FileAttachmentDto.java
 /Users/sansi/dev/qoder_projects/foundation/src/main/java/com/aichat/foundation/service/ModelService.java
 /Users/sansi/dev/qoder_projects/foundation/src/main/java/com/aichat/foundation/dto/StreamResponse.java
+/Users/sansi/dev/qoder_projects/foundation/src/main/java/com/aichat/foundation/config/FileMigrationRunner.java

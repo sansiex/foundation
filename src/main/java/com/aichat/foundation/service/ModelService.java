@@ -61,10 +61,14 @@ public class ModelService {
     }
     
     /**
-     * Create enhanced prompt with context
+     * Create enhanced prompt with context and language matching
      */
     public String createEnhancedPrompt(String userMessage, String conversationContext) {
         StringBuilder promptBuilder = new StringBuilder();
+        
+        // Add language instruction based on user message language
+        String languageInstruction = detectAndCreateLanguageInstruction(userMessage);
+        promptBuilder.append(languageInstruction).append("\n\n");
         
         if (conversationContext != null && !conversationContext.isEmpty()) {
             promptBuilder.append("Previous conversation context:\n");
@@ -79,10 +83,14 @@ public class ModelService {
     }
     
     /**
-     * Create multimodal prompt with image description
+     * Create multimodal prompt with image description and language matching
      */
     public String createMultimodalPrompt(String userMessage, String imageDescription) {
         StringBuilder promptBuilder = new StringBuilder();
+        
+        // Add language instruction based on user message language
+        String languageInstruction = detectAndCreateLanguageInstruction(userMessage);
+        promptBuilder.append(languageInstruction).append("\n\n");
         
         if (imageDescription != null && !imageDescription.isEmpty()) {
             promptBuilder.append("Image description: ").append(imageDescription).append("\n\n");
@@ -92,5 +100,36 @@ public class ModelService {
         promptBuilder.append("\n\nPlease analyze the image and respond to the user's message. Assistant: ");
         
         return promptBuilder.toString();
+    }
+    
+    /**
+     * Detect the language of user message and create appropriate instruction
+     */
+    private String detectAndCreateLanguageInstruction(String userMessage) {
+        if (userMessage == null || userMessage.trim().isEmpty()) {
+            return "Please respond in the same language as the user's question.";
+        }
+        
+        // Simple language detection based on character patterns
+        boolean hasChinese = userMessage.matches(".*[\u4e00-\u9fff]+.*");
+        boolean hasJapanese = userMessage.matches(".*[\u3040-\u309f\u30a0-\u30ff]+.*");
+        boolean hasKorean = userMessage.matches(".*[\uac00-\ud7af]+.*");
+        boolean hasRussian = userMessage.matches(".*[\u0400-\u04ff]+.*");
+        boolean hasArabic = userMessage.matches(".*[\u0600-\u06ff]+.*");
+        
+        if (hasChinese) {
+            return "请使用中文回答用户的问题。务必保持与用户问题相同的语言。";
+        } else if (hasJapanese) {
+            return "ユーザーの質問に日本語で答えてください。ユーザーの質問と同じ言語を保ってください。";
+        } else if (hasKorean) {
+            return "사용자의 질문에 한국어로 답변해 주세요. 사용자 질문과 같은 언어를 유지해 주세요.";
+        } else if (hasRussian) {
+            return "Пожалуйста, отвечайте на вопросы пользователя на русском языке. Сохраняйте тот же язык, что и в вопросе пользователя.";
+        } else if (hasArabic) {
+            return "يرجى الإجابة على أسئلة المستخدم باللغة العربية. حافظ على نفس لغة سؤال المستخدم.";
+        } else {
+            // Default to English for Latin script or mixed content
+            return "Please respond in English. Keep your response clear and helpful.";
+        }
     }
 }

@@ -259,7 +259,9 @@ class ChatManager {
             window.app.ui.clearInput();
             window.app.ui.disableInput(true);
             
+            // Clear file selection immediately after adding user message
             if (selectedFile) {
+                window.app.fileUpload.clearSelection();
                 await this.sendMultimodalMessage(content, selectedFile);
             } else {
                 await this.sendTextMessage(content);
@@ -268,8 +270,11 @@ class ChatManager {
         } catch (error) {
             console.error('Failed to send message:', error);
             window.app.ui.showToast('Failed to send message', 'error');
-            // Re-enable input on error
+            // Re-enable input on error and clear file selection if it exists
             window.app.ui.disableInput(false);
+            if (window.app.fileUpload.hasSelectedFile()) {
+                window.app.fileUpload.clearSelection();
+            }
         }
     }
 
@@ -336,9 +341,6 @@ class ChatManager {
             
             // Process stream chunks with simulated streaming delay
             await this.processStreamChunksWithDelay(streamData);
-            
-            // Clear file selection after successful send
-            window.app.fileUpload.clearSelection();
             
         } catch (error) {
             console.error('Failed to send multimodal message:', error);

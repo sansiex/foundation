@@ -89,15 +89,20 @@ class Application {
             }
         }, 5 * 60 * 1000);
 
-        // WebSocket connection monitoring
+        // Less aggressive WebSocket connection monitoring - only check every 2 minutes
+        // and don't force reconnection if HTTP streaming is working
         setInterval(() => {
             if (window.wsManager && !window.wsManager.isConnected()) {
-                console.log('WebSocket disconnected, attempting reconnection...');
-                window.wsManager.connect().catch(error => {
-                    console.warn('WebSocket reconnection failed:', error);
-                });
+                // Only attempt reconnection if we haven't exceeded max attempts
+                const status = window.wsManager.getConnectionStatus();
+                if (status.reconnectAttempts < 5) {
+                    console.log('WebSocket disconnected, attempting gentle reconnection...');
+                    window.wsManager.connect().catch(error => {
+                        console.warn('WebSocket reconnection failed, HTTP streaming still available:', error);
+                    });
+                }
             }
-        }, 30 * 1000);
+        }, 2 * 60 * 1000); // Check every 2 minutes instead of 30 seconds
     }
 
     // Public API methods

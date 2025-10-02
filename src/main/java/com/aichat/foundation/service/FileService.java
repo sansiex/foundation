@@ -197,6 +197,30 @@ public class FileService {
     }
     
     /**
+     * Migrate existing file paths to new upload directory
+     * This method updates database records to reflect the new upload directory
+     */
+    public void migrateFilePathsToNewDirectory(String oldDirectoryPath, String newDirectoryPath) {
+        List<FileAttachment> allFiles = fileAttachmentRepository.findAll();
+        
+        for (FileAttachment fileAttachment : allFiles) {
+            String currentPath = fileAttachment.getFilePath();
+            if (currentPath.contains(oldDirectoryPath)) {
+                // Extract just the filename from the current path
+                String filename = Paths.get(currentPath).getFileName().toString();
+                // Create new path with the new directory
+                String newPath = Paths.get(newDirectoryPath, filename).toString();
+                
+                // Update the file path
+                fileAttachment.setFilePath(newPath);
+                fileAttachmentRepository.save(fileAttachment);
+                
+                System.out.println("Updated file path: " + currentPath + " -> " + newPath);
+            }
+        }
+    }
+
+    /**
      * Calculate total file size for a session
      */
     public long getTotalFileSizeBySessionId(UUID sessionId) {

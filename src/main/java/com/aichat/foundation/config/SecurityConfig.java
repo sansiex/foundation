@@ -30,7 +30,7 @@ public class SecurityConfig {
                 .requestMatchers("/actuator/**").permitAll()
                 
                 // Static resources
-                .requestMatchers("/", "/index.html", "/static/**", "/css/**", "/js/**", "/images/**").permitAll()
+                .requestMatchers("/", "/index.html", "/static/**", "/css/**", "/js/**", "/lib/**", "/images/**").permitAll()
                 
                 // API endpoints - for now allow all (in production, implement proper authentication)
                 .requestMatchers("/api/**").permitAll()

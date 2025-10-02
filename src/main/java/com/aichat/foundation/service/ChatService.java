@@ -16,6 +16,15 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+/**
+ * Chat service providing conversational AI capabilities with streaming responses.
+ * 
+ * ARCHITECTURE NOTES:
+ * - Primary communication: HTTP streaming (always available)
+ * - WebSocket: Optional enhancement for real-time features
+ * - Frontend simulates progressive streaming from HTTP responses
+ * - WebSocket failures should NOT affect core functionality
+ */
 @Service
 @Transactional
 public class ChatService {

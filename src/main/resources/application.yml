@@ -43,7 +43,7 @@ ollama:
 
 # File Storage Configuration
 file:
-  upload-dir: ./uploads
+  upload-dir: /Users/sansi/data/app/foundation/image
   max-size: 10485760  # 10MB in bytes
   allowed-types: image/jpeg,image/png,image/gif,image/webp
 
