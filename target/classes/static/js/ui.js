@@ -313,12 +313,23 @@ class UIManager {
                     return `<a href="${safeHref}" target="_blank" rel="noopener noreferrer"${titleAttr}>${text}</a>`;
                 };
                 
+                // Customize table rendering with responsive wrapper
+                renderer.table = function(header, body) {
+                    if (body) body = `<tbody>${body}</tbody>`;
+                    return `<div class="table-container"><table>
+<thead>
+${header}</thead>
+${body}</table></div>
+`;
+                };
+                
                 // Configure marked options
                 marked.setOptions({
                     renderer: renderer,
                     highlight: null,
                     breaks: true,
-                    gfm: true,
+                    gfm: true,          // GitHub Flavored Markdown (includes tables)
+                    tables: true,       // Explicitly enable tables
                     headerIds: false,
                     mangle: false
                 });
@@ -329,8 +340,8 @@ class UIManager {
                 // Sanitize with DOMPurify if available
                 if (typeof DOMPurify !== 'undefined') {
                     html = DOMPurify.sanitize(html, {
-                        ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'code', 'pre', 'blockquote', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'a'],
-                        ALLOWED_ATTR: ['href', 'target', 'rel', 'class', 'title'],
+                        ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'code', 'pre', 'blockquote', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'a', 'table', 'thead', 'tbody', 'tr', 'th', 'td', 'div'],
+                        ALLOWED_ATTR: ['href', 'target', 'rel', 'class', 'title', 'align'],
                         ADD_ATTR: ['target', 'rel'],
                         ALLOW_DATA_ATTR: false
                     });

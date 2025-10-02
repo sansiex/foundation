@@ -302,6 +302,88 @@
     padding-left: 1.5rem;
 }
 
+/* Table styles */
+.message-text table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0.75rem 0;
+    background: white;
+    border: 1px solid #e1e5e9;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.message-text table thead {
+    background: #f8f9fa;
+}
+
+.message-text table th,
+.message-text table td {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid #e1e5e9;
+    vertical-align: top;
+}
+
+.message-text table th {
+    font-weight: 600;
+    color: #2c3e50;
+    background: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.message-text table td {
+    color: #495057;
+}
+
+.message-text table tbody tr:hover {
+    background: #f8f9fa;
+}
+
+.message-text table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Table alignment */
+.message-text table th[align="center"],
+.message-text table td[align="center"] {
+    text-align: center;
+}
+
+.message-text table th[align="right"],
+.message-text table td[align="right"] {
+    text-align: right;
+}
+
+.message-text table th[align="left"],
+.message-text table td[align="left"] {
+    text-align: left;
+}
+
+/* Responsive table */
+@media (max-width: 768px) {
+    .message-text table {
+        font-size: 0.9rem;
+    }
+    
+    .message-text table th,
+    .message-text table td {
+        padding: 0.5rem 0.75rem;
+    }
+}
+
+/* Table container for horizontal scroll on small screens */
+.message-text .table-container {
+    overflow-x: auto;
+    margin: 0.75rem 0;
+}
+
+.message-text .table-container table {
+    margin: 0;
+    min-width: 100%;
+}
+
 .message-text li {
     margin: 0.25rem 0;
     line-height: 1.4;

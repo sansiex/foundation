@@ -8,11 +8,12 @@ window.DOMPurify = {
         // Define allowed tags and attributes
         const allowedTags = options?.ALLOWED_TAGS || [
             'p', 'br', 'strong', 'em', 'u', 'code', 'pre', 'blockquote', 
-            'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'a'
+            'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'a',
+            'table', 'thead', 'tbody', 'tr', 'th', 'td', 'div'
         ];
         
         const allowedAttrs = options?.ALLOWED_ATTR || [
-            'href', 'target', 'rel', 'class', 'title'
+            'href', 'target', 'rel', 'class', 'title', 'align'
         ];
         
         // Function to clean element
