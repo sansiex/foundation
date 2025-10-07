@@ -279,7 +279,7 @@ class ChatManager {
     }
 
     async sendTextMessage(content) {
-        // Use HTTP streaming since WebSocket might not be available
+        // Use real HTTP streaming instead of collecting all data
         this.prepareForStreaming();
         
         try {
@@ -301,12 +301,8 @@ class ChatManager {
                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
 
-            // Parse the response as JSON array
-            const streamData = await response.json();
-            console.log('Received stream data:', streamData);
-            
-            // Process stream chunks with simulated streaming delay
-            await this.processStreamChunksWithDelay(streamData);
+            // Process streaming response in real-time
+            await this.processStreamingResponse(response);
             
         } catch (error) {
             console.error('Failed to send message:', error);
@@ -335,12 +331,8 @@ class ChatManager {
                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
 
-            // Parse the response as JSON array (same as text messages)
-            const streamData = await response.json();
-            console.log('Received multimodal stream data:', streamData);
-            
-            // Process stream chunks with simulated streaming delay
-            await this.processStreamChunksWithDelay(streamData);
+            // Process streaming response in real-time (same as text messages)
+            await this.processStreamingResponse(response);
             
         } catch (error) {
             console.error('Failed to send multimodal message:', error);
@@ -349,40 +341,57 @@ class ChatManager {
         }
     }
 
-    async processStreamChunksWithDelay(streamData) {
-        // Filter and sort chunks to get proper streaming order
-        const startChunk = streamData.find(chunk => chunk.type === 'stream_start');
-        const contentChunks = streamData.filter(chunk => chunk.type === 'stream_chunk');
-        const endChunk = streamData.find(chunk => chunk.type === 'stream_end');
+    async processStreamingResponse(response) {
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder('utf-8');
+        let buffer = ''; // Buffer to accumulate partial data
         
-        // Process start chunk immediately
-        if (startChunk) {
-            console.log('Processing start chunk:', startChunk);
-            this.handleStreamingMessage(startChunk);
-        }
-        
-        // Process content chunks with delays to simulate streaming
-        for (let i = 0; i < contentChunks.length; i++) {
-            const chunk = contentChunks[i];
-            console.log('Processing content chunk:', chunk);
-            
-            // Add the chunk content to our streaming buffer
-            this.handleStreamingMessage(chunk);
-            
-            // Add a small delay between chunks for streaming effect
-            // Adjust delay based on content length - shorter for small chunks
-            const chunkLength = chunk.content ? chunk.content.length : 1;
-            const baseDelay = 30; // Base delay in ms
-            const delayPerChar = 2; // Additional delay per character
-            const delay = Math.min(baseDelay + (chunkLength * delayPerChar), 150); // Max 150ms delay
-            
-            await new Promise(resolve => setTimeout(resolve, delay));
-        }
-        
-        // Process end chunk
-        if (endChunk) {
-            console.log('Processing end chunk:', endChunk);
-            this.handleStreamingMessage(endChunk);
+        try {
+            while (true) {
+                const { done, value } = await reader.read();
+                
+                if (done) {
+                    // Process any remaining data in the buffer
+                    if (buffer.trim() !== '') {
+                        this.handleStreamingMessage({ type: 'stream_end' });
+                    }
+                    break;
+                }
+                
+                // Decode the chunk and add it to the buffer
+                buffer += decoder.decode(value, { stream: true });
+                
+                // Process complete lines from the buffer
+                const lines = buffer.split('\n');
+                
+                // Keep the last (potentially incomplete) line in the buffer
+                buffer = lines.pop();
+                
+                // Process all complete lines
+                for (const line of lines) {
+                    if (line.trim() === '') continue;
+                    
+                    // Handle Server-Sent Events format (data: prefix)
+                    let jsonData = line;
+                    if (line.startsWith('data:')) {
+                        jsonData = line.substring(5).trim(); // Remove 'data:' prefix
+                    }
+                    
+                    if (jsonData.trim() === '') continue;
+                    
+                    try {
+                        const data = JSON.parse(jsonData);
+                        this.handleStreamingMessage(data);
+                    } catch (parseError) {
+                        console.warn('Failed to parse streaming data:', jsonData, parseError);
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Error processing streaming response:', error);
+            this.handleStreamError(error);
+        } finally {
+            reader.releaseLock();
         }
     }
 

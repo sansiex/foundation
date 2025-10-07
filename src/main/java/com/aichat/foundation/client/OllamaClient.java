@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Stream;
 
 @Component
 public class OllamaClient {
@@ -80,16 +81,49 @@ public class OllamaClient {
                     .timeout(Duration.ofSeconds(timeout))
                     .build();
                 
-                HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+                // Use streaming body handler
+                HttpResponse<Stream<String>> response = httpClient.send(request, 
+                    HttpResponse.BodyHandlers.ofLines());
                 
                 if (response.statusCode() != 200) {
                     sink.error(new OllamaException("OLLAMA returned error code: " + response.statusCode()));
                     return;
                 }
                 
-                // Parse streaming response
-                parseStreamingResponse(response.body(), sink);
-                sink.complete();
+                // Process streaming lines in real-time
+                response.body().forEach(line -> {
+                    if (line.trim().isEmpty()) {
+                        return;
+                    }
+                    
+                    try {
+                        JsonNode jsonNode = objectMapper.readTree(line);
+                        
+                        // Check for errors
+                        if (jsonNode.has("error")) {
+                            sink.error(new OllamaException("OLLAMA error: " + jsonNode.get("error").asText()));
+                            return;
+                        }
+                        
+                        // Extract response content and emit immediately
+                        if (jsonNode.has("response")) {
+                            String content = jsonNode.get("response").asText();
+                            if (!content.isEmpty()) {
+                                sink.next(content);
+                            }
+                        }
+                        
+                        // Check if done
+                        if (jsonNode.has("done") && jsonNode.get("done").asBoolean()) {
+                            sink.complete();
+                            return;
+                        }
+                        
+                    } catch (Exception e) {
+                        // Log malformed JSON line but continue processing
+                        System.err.println("Failed to parse JSON line: " + line + " - " + e.getMessage());
+                    }
+                });
                 
             } catch (Exception e) {
                 sink.error(new OllamaException("Failed to send request to OLLAMA: " + e.getMessage(), e));
@@ -119,49 +153,6 @@ public class OllamaClient {
         requestBody.put("options", options);
         
         return requestBody;
-    }
-    
-    /**
-     * Parse streaming response from OLLAMA
-     */
-    private void parseStreamingResponse(String responseBody, reactor.core.publisher.FluxSink<String> sink) {
-        try (BufferedReader reader = new BufferedReader(new StringReader(responseBody))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                if (line.trim().isEmpty()) {
-                    continue;
-                }
-                
-                try {
-                    JsonNode jsonNode = objectMapper.readTree(line);
-                    
-                    // Check for errors
-                    if (jsonNode.has("error")) {
-                        sink.error(new OllamaException("OLLAMA error: " + jsonNode.get("error").asText()));
-                        return;
-                    }
-                    
-                    // Extract response content
-                    if (jsonNode.has("response")) {
-                        String content = jsonNode.get("response").asText();
-                        if (!content.isEmpty()) {
-                            sink.next(content);
-                        }
-                    }
-                    
-                    // Check if done
-                    if (jsonNode.has("done") && jsonNode.get("done").asBoolean()) {
-                        break;
-                    }
-                    
-                } catch (Exception e) {
-                    // Log malformed JSON line but continue processing
-                    System.err.println("Failed to parse JSON line: " + line + " - " + e.getMessage());
-                }
-            }
-        } catch (IOException e) {
-            sink.error(new OllamaException("Failed to read response stream: " + e.getMessage(), e));
-        }
     }
     
     /**

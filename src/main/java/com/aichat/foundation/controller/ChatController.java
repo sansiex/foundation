@@ -2,6 +2,11 @@ package com.aichat.foundation.controller;
 
 import com.aichat.foundation.dto.*;
 import com.aichat.foundation.service.ChatService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import java.time.format.DateTimeFormatter;
+import java.time.LocalDateTime;
 import jakarta.validation.Valid;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -19,9 +24,15 @@ import java.util.UUID;
 public class ChatController {
     
     private final ChatService chatService;
+    private final ObjectMapper objectMapper;
     
     public ChatController(ChatService chatService) {
         this.chatService = chatService;
+        this.objectMapper = new ObjectMapper();
+        // Register JavaTimeModule to handle LocalDateTime serialization
+        JavaTimeModule javaTimeModule = new JavaTimeModule();
+        javaTimeModule.addSerializer(LocalDateTime.class, new LocalDateTimeSerializer(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+        this.objectMapper.registerModule(javaTimeModule);
     }
     
     /**
@@ -88,25 +99,41 @@ public class ChatController {
     /**
      * Send a text message
      */
-    @PostMapping("/message")
-    public Flux<StreamResponse> sendMessage(@Valid @RequestBody ChatMessageRequest request) {
+    @PostMapping(value = "/message", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<String> sendMessage(@Valid @RequestBody ChatMessageRequest request) {
         String userId = "default-user";
         
-        return chatService.processTextMessage(request, userId);
+        return chatService.processTextMessage(request, userId)
+            .map(streamResponse -> {
+                try {
+                    // For SSE, just return the JSON without the data: prefix
+                    return objectMapper.writeValueAsString(streamResponse) + "\n";
+                } catch (Exception e) {
+                    return "{\"type\":\"error\",\"content\":\"JSON serialization error: " + e.getMessage() + "\"}\n";
+                }
+            });
     }
     
     /**
      * Send a multimodal message (text + image)
      */
-    @PostMapping(value = "/message/multimodal", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public Flux<StreamResponse> sendMultimodalMessage(
+    @PostMapping(value = "/message/multimodal", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<String> sendMultimodalMessage(
             @RequestParam("sessionId") UUID sessionId,
             @RequestParam("content") String content,
             @RequestParam("file") MultipartFile file) {
         
         String userId = "default-user";
         
-        return chatService.processMultimodalMessage(sessionId, content, file, userId);
+        return chatService.processMultimodalMessage(sessionId, content, file, userId)
+            .map(streamResponse -> {
+                try {
+                    // For SSE, just return the JSON without the data: prefix
+                    return objectMapper.writeValueAsString(streamResponse) + "\n";
+                } catch (Exception e) {
+                    return "{\"type\":\"error\",\"content\":\"JSON serialization error: " + e.getMessage() + "\"}\n";
+                }
+            });
     }
     
     /**
